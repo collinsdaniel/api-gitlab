@@ -4,19 +4,26 @@ import urllib3
 
 def conectar(url, token):
 
+    # Evitar warnings por não verificar ssl.
     urllib3.disable_warnings()
 
+    print('Conectar no servidor: {}'.format(url))
     gl = gitlab.Gitlab(url=url, private_token=token, ssl_verify=False, per_page=100, order_by='name')
     gl.auth()
+    print('Conexão realizada...\n')
 
-    grupo_miv = gl.groups.get(1864)
-    nome_grupo = grupo_miv.attributes.get('name')
-    print('Grupo {}'.format(nome_grupo))
+    id_grupo = int(input('id do grupo: '))
+    grupo = gl.groups.get(id_grupo)
+    nome_grupo = grupo.attributes.get('name')
 
-    for project in grupo_miv.projects.list(all=True):
+    print('Consultar projetos do grupo {}...\n'.format(nome_grupo))
+
+    for project in grupo.projects.list(all=True):
         user = gl.users.get(project.creator_id)
         print('{},{},{}'.format(project.created_at, project.name, user.name))
 
+    print('Consulta realizada...')
+    
 
 def main():
     url = input('url: ')
